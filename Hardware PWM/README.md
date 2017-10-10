@@ -1,8 +1,5 @@
 # Hardware PWM
-Now that we have learned about GPIO ports, timers and interrupts, about 80% of embedded systems has been learned. This lab aims to put all newly gained skills to the test by using a mix of GPIO, timers and interrupts. The second excercise consists of creating Pulse Width Modulation (PWM) using software. 
-
-## PWM
-Dealing with digital signals, a signal can only be high (3.3 V) or low (0 V). The proportion of time the signal is high compared to when it is low over a consistent frequency is Pulse Width Modulation.
+Now that we have learned about GPIO ports, timers and interrupts, about 80% of embedded systems has been learned. This lab aims to put all newly gained skills to the test by using a mix of GPIO, timers and interrupts. The second excercise consists of creating Pulse Width Modulation (PWM) using the processor's hardware. 
 
 ![alt text](https://github.com/RU09342/lab-4-timers-and-pwm-tcsmith20/blob/master/Hardware%20PWM/HW%20PWM.gif) 
 
