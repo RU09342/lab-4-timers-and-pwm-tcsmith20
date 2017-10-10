@@ -1,28 +1,14 @@
 # Software PWM
-Most microprocessors will have a Timer module, but depending on the device, some may not come with pre-built PWM modules. Instead, you may have to utilize software techniques to synthesize PWM on your own.
+Now that we have learned about GPIO ports, timers and interrupts, about 80% of embedded systems has been learned. This lab aims to put all newly gained skills to the test by using a mix of GPIO, timers and interrupts. The second excercise consists of creating Pulse Width Modulation (PWM) using software. 
 
-## Task
-You need to generate a 1kHz PWM signal with a duty cycle between 0% and 100%. Upon the processor starting up, you should PWM one of the on-board LEDs at a 50% duty cycle. Upon pressing one of the on-board buttons, the duty cycle of the LED should increase by 10%. Once you have reached 100%, your duty cycle should go back to 0% on the next button press. You also need to implement the other LED to light up when the Duty Cycle button is depressed and turns back off when it is let go. This is to help you figure out if the button has triggered multiple interrupts.
+## PWM
+Dealing with digital signals, a signal can only be high (3.3 V) or low (0 V). The proportion of time the signal is high compared to when it is low over a consistent frequency is Pulse Width Modulation.
 
-### Hints
-You really, really, really, really need to hook up the output of your LED pin to an oscilloscope to make sure that the duty cycle is accurate. Also, since you are going to be doing a lot of initialization, it would be helpful for all persons involved if you created your main function like:
-'''c
-int main(void)
-{
-	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
-	LEDSetup(); // Initialize our LEDS
-	ButtonSetup();  // Initialize our button
-	TimerA0Setup(); // Initialize Timer0
-	TimerA1Setup(); // Initialize Timer1
-	__bis_SR_register(LPM0_bits + GIE);       // Enter LPM0 w/ interrupt
-}
-'''
-This way, each of the steps in initialization can be isolated for easier understanding and debugging.
+![alt text](https://github.com/RU09342/lab-4-timers-and-pwm-tcsmith20/blob/master/Software%20PWM/SW%20PWM.gif)
+
+## How Does The Code Work
+Using the MSP430 library I created, it was easy to implement all five required processors into one main.c file. The main method disables the watchdog timer, initializes the processors setup, LEDs, button 1 and Timer B (This is all done through the Library). Timer B will used as the PWM timer. Timer B was initialized to use the SMCLK (1 MHz), up mode, no divider and a CCR0 value of 1000. Since Timer B is in up mode and CCR0 is 1000, the CCR0 interrupt will fire at 1 kHz. CCR1 is then set to the ratio of on time to total time (duty cycle).  For example, if the duty cycle was 50%, CCR1 would be set to 500 since CCR0 is set to 1000. When the button 1 interrupt is fired, the duty cycle increments by 10 and Timer A is used for debouncing purposes.
 
 
-## Extra Work
-### Linear Brightness
-Much like every other things with humans, not everything we interact with we perceive as linear. For senses such as sight or hearing, certain features such as volume or brightness have a logarithmic relationship with our senses. Instead of just incrementing by 10%, try making the brightness appear to change linearly. 
-
-### Power Comparison
-Since you are effectively turning the LED off for some period of time, it should follow that the amount of power you are using over time should be less. Using Energy Trace, compare the power consumption of the different duty cycles. What happens if you use the pre-divider in the timer module for the PWM (does it consume less power)?
+## Important Things to Note
+* Many, many timer interrupts are used in this code. One is used to help debouncing, one is fired when the PWM timer overflows and the other fires depending on the duty cycle. It is very important to keep track of which timer and interrupt is doing. Don't forget to properly name your interrupt vectors.

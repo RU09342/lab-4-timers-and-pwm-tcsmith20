@@ -1,15 +1,14 @@
 # Hardware PWM
-Now that you have done the software version of PWM, now it is time to start leveraging the other features of these Timer Modules.
+Now that we have learned about GPIO ports, timers and interrupts, about 80% of embedded systems has been learned. This lab aims to put all newly gained skills to the test by using a mix of GPIO, timers and interrupts. The second excercise consists of creating Pulse Width Modulation (PWM) using software. 
 
-## Task
-You need to replicate the same behavior as in the software PWM, only using the Timer Modules ability to directly output to a GPIO Pin instead of managing them in software. 
+## PWM
+Dealing with digital signals, a signal can only be high (3.3 V) or low (0 V). The proportion of time the signal is high compared to when it is low over a consistent frequency is Pulse Width Modulation.
 
-### Hints 
-Read up on the P1SEL registers as well as look at the Timer modules ability to multiplex.
+![alt text](https://github.com/RU09342/lab-4-timers-and-pwm-tcsmith20/blob/master/Hardware%20PWM/HW%20PWM.gif) 
 
-## Extra Work
-### Using ACLK
-Some of these microprocessors have a built in ACLK which is extremely slow compared to your up to 25MHz available on some of them. What is the overall impact on the system when using this clock? Can you actually use your PWM code with a clock that slow?
+## How Does The Code Work
+Using the MSP430 library I created, it was easy to implement all five required processors into one main.c file. The main method disables the watchdog timer, initializes the processors setup, LEDs, button 1 and Timer A (This is all done through the Library). Usually, Timer A interrupts would be enabled. However, the purpose of the hardware interrupt is to directly output the Timer to an LED. I created a hal_pwm.h file just for this lab to initialize any port directions, select registers or timer controls needed for each specific processor. This file can be found in this excercises MSP Library. These files are project specific and will most likely not be used in future labs. Button 1 and Timer B interrupts were used for incrementing duty cycle and debouncing like the previous excercises.
 
-### Ultra Low Power
-Using a combination of ACLK, Low Power Modes, and any other means you may deem necessary, optimize this PWM code to run at 50% duty cycle with a LED on the MSP430FR5994. In particular, time how long your code can run on the fully charged super capacitor. You do not need to worry about the button control in this case, and you will probably want to disable all the GPIO that you are not using (nudge, nudge, hint, hint).
+
+## Important Things to Note
+* Outputting a timer to a GPIO pin is not as trivial as it seems. Each processor varies greatly on register names and restrictions. Some processors could only output to one LED, not both. Other times, only specific timers could be used. All of these specifications can be found in a data table in each processor specific datasheet.

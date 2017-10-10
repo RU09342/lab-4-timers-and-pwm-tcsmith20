@@ -1,15 +1,11 @@
 # Software Debouncing
-In previously labs, we talked about how objects such as switches can cause some nasty effects since they are actually a mechanical system at heart. We talked about the simple hardware method of debouncing, but due to the many different design constraints, you may not be able to add or adjust hardware. Debouncing is also only one of many applications which would require the use of built in Timers to allow for other processes to take place.
+Now that we have learned about GPIO ports, timers and interrupts, about 80% of embedded systems has been learned. This lab aims to put all the newly gained skills to the test by using a mix of GPIO, timers and interrupts. The first excercise consists of solving debouncing using software. Bouncing is when a mechanical switch bounces when pressed causing multiple undesired edges. 
 
-## Task
-You need to utilize the TIMER modules within the MSP430 processors to implement a debounced switch to control the state of an LED. You most likely will want to hook up your buttons on the development boards to an oscilloscope to see how much time it takes for the buttons to settle. The idea here is that your processor should be able to run other code, while relying on timers and interrupts to manage the debouncing in the background. You should not be using polling techniques for this assignment. Your code should also be able to detect 
+![alt text](https://github.com/RU09342/lab-4-timers-and-pwm-tcsmith20/blob/master/Debouncing/Debouncing.gif)
 
-### Hints
-You need to take a look at how the P1IE and P1IES registers work and how to control them within an interrupt routine. Remember that the debouncing is not going to be the main process you are going to run by the end of the lab.
+## How Does The Code Work
+Using the MSP430 library I created, it was easy to implement all five required processors into one main.c file. The main method disables the watchdog timer, initializes the processors setup, LEDs, button 1 and Timer A (This is all done through the Library). Button 1's interrupt is initially enabled to trigger on the negative edge but the code switches the edge every time the button is pressed. When the button interrupt is fired, the ISR checks to see which edge caused the interrupt. The LEDs only toggle on the negative edge. Then, regardless of edge, Timer A is initialized to use SMCLK, a divider of 8, up mode and a CCR0 value of 3000. These values can vary since they are only used to delay the next button interrupt. Then Timer A's interrupt is enabled and button 1's interrupt is disabled and flag is cleared. Timer A then counts until CCR0. When the interrupt fires, button 1's interrupt will reenable on the opposite edge it was previously. Timer A is then stopped and reset for the next button press.
 
-## Extra Work
-### Low Power Modes
-Go into the datasheets or look online for information about the low power modes of your processors and using Energy Trace, see what the lowest power consumption you can achieve while still running your debouncing code. Take a note when your processor is not driving the LED (or unplug the header connecting the LED and check) but running the interrupt routine for your debouncing.
 
-### Double the fun
-Can you expand your code to debounce two switches? Do you have to use two Timer peripherals to do this?
+## Important Things to Note
+* Originally, debouncing was only implemented when the button was pressed down (neg edge) because this is when switch bouncing is most likely to happen. However, when the button was released, the state of the LEDs varied from what was expected. This problem was fixed when debouncing was implemented on both edge triggers.
